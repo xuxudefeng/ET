@@ -36,7 +36,19 @@ namespace ETExample
         
         private static void WaitTimeFinishCallback()
         {
-            Console.WriteLine($"程序启动5秒后，loopCount的值是: {loopCount}");
+            Console.WriteLine($"WaitTimeAsync finsih loopCount的值是: {loopCount}");
+            WaitTimeAsync(4000, WaitTimeFinishCallback3);
+        }
+        
+        private static void WaitTimeFinishCallback3()
+        {
+            Console.WriteLine($"WaitTimeAsync finsih loopCount的值是: {loopCount}");
+            WaitTimeAsync(3000, WaitTimeFinishCallback2);
+        }
+        
+        private static void WaitTimeFinishCallback2()
+        {
+            Console.WriteLine($"WaitTimeAsync finsih loopCount的值是: {loopCount}");
         }
 
         /// <summary>
