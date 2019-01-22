@@ -2,7 +2,7 @@
 using System.Threading;
 using ETModel;
 
-namespace ETExample
+namespace Example2_1
 {
     internal class Program
     {

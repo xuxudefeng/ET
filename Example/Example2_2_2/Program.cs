@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ETModel;
 
-namespace ETExample
+namespace Example2_2_2
 {
     class Program
     {

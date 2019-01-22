@@ -1,27 +1,27 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using ETModel;
 
-namespace Example2_2
+namespace Example2_3_2
 {
     class Program
     {
         private static int loopCount = 0;
+
+        private static long time;
+        private static TaskCompletionSource<bool> tcs;
         
         static void Main(string[] args)
         {
-            OneThreadSynchronizationContext _ = OneThreadSynchronizationContext.Instance;
-
             Console.WriteLine($"主线程: {Thread.CurrentThread.ManagedThreadId}");
-            
+
             Crontine();
             
             while (true)
             {
-                OneThreadSynchronizationContext.Instance.Update();
-                
                 Thread.Sleep(1);
+
+                CheckTimerOut();
                 
                 ++loopCount;
                 if (loopCount % 10000 == 0)
@@ -30,7 +30,7 @@ namespace Example2_2
                 }
             }
         }
-
+        
         private static async void Crontine()
         {
             await WaitTimeAsync(5000);
@@ -40,24 +40,29 @@ namespace Example2_2
             await WaitTimeAsync(3000);
             Console.WriteLine($"当前线程: {Thread.CurrentThread.ManagedThreadId}, WaitTimeAsync finsih loopCount的值是: {loopCount}");
         }
+
+        private static void CheckTimerOut()
+        {
+            if (time == 0)
+            {
+                return;
+            }
+            long nowTicks = DateTime.Now.Ticks / 10000;
+            if (time > nowTicks)
+            {
+                return;
+            }
+
+            time = 0;
+            tcs.SetResult(true);
+        }
         
         private static Task WaitTimeAsync(int waitTime)
         {
-            TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
-            Thread thread = new Thread(()=>WaitTime(waitTime, tcs));
-            thread.Start();
-            return tcs.Task;
-        }
-        
-        /// <summary>
-        /// 在另外的线程等待
-        /// </summary>
-        private static void WaitTime(int waitTime, TaskCompletionSource<bool> tcs)
-        {
-            Thread.Sleep(waitTime);
-            
-            // 将tcs扔回主线程执行
-            OneThreadSynchronizationContext.Instance.Post(o=>tcs.SetResult(true), null);
+            TaskCompletionSource<bool> t = new TaskCompletionSource<bool>();
+            time = DateTime.Now.Ticks / 10000 + waitTime;
+            tcs = t;
+            return t.Task;
         }
     }
 }
