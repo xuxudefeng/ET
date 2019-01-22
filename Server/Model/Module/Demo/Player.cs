@@ -1,4 +1,6 @@
-﻿namespace ETModel
+﻿using MongoDB.Bson.Serialization.Attributes;
+
+namespace ETModel
 {
 	[ObjectSystem]
 	public class PlayerSystem : AwakeSystem<Player, string>
@@ -11,6 +13,7 @@
 
 	public sealed class Player : Entity
 	{
+		[Bson]
 		public string Account { get; private set; }
 		
 		public long UnitId { get; set; }
