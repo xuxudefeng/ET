@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <LangVersion>7.3</LangVersion>
@@ -9,7 +9,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{CD311104-1830-B119-81B6-5DBEE2467FFB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -103,7 +104,6 @@
     <Compile Include="Assets\Editor\ExcelExporterEditor\ExcelExporterEditor.cs" />
     <Compile Include="Assets\Editor\GlobalConfigEditor\GlobalConfigEditor.cs" />
     <Compile Include="Assets\Editor\Helper\EditorResHelper.cs" />
-    <Compile Include="Assets\Editor\Helper\ShellHelper.cs" />
     <Compile Include="Assets\Editor\ILRuntimeEditor\ILRuntimeCLRBinding.cs" />
     <Compile Include="Assets\Editor\LogRedirection.cs" />
     <Compile Include="Assets\Editor\Proto2CsEditor\InnerProto2CS.cs" />

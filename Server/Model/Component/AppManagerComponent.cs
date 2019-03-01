@@ -57,9 +57,7 @@ namespace ETModel
 			try
 			{
 				bool useShellExecute = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-				ProcessStartInfo info = new ProcessStartInfo { FileName = exe, Arguments = arguments, CreateNoWindow = true, UseShellExecute = useShellExecute };
-
-				Process process = Process.Start(info);
+				Process process = ProcessHelper.Run(exe, arguments, useShellExecute: useShellExecute);
 				this.processes.Add(startConfig.AppId, process);
 			}
 			catch (Exception e)
