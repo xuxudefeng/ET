@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <AssemblyName>Model</AssemblyName>
     <RootNamespace>Model</RootNamespace>
     <LangVersion>7.3</LangVersion>
@@ -67,6 +67,9 @@
     </Compile>
     <Compile Include="..\..\Unity\Assets\Model\Module\Config\AConfigComponent.cs">
       <Link>Module\Config\AConfigComponent.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Unity\Assets\Model\Module\CoroutineLock\CoroutineLockComponent.cs">
+      <Link>Module\CoroutineLock\CoroutineLockComponent.cs</Link>
     </Compile>
     <Compile Include="..\..\Unity\Assets\Model\Module\Message\MessagePool.cs">
       <Link>Module\Message\MessagePool\ETModel\MessagePool.cs</Link>

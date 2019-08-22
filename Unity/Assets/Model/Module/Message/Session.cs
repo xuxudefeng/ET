@@ -70,7 +70,7 @@ namespace ETModel
 			
 			foreach (Action<IResponse> action in this.requestCallback.Values.ToArray())
 			{
-				action.Invoke(new ResponseMessage { Error = this.Error });
+				action.Invoke(new ErrorResponse { Error = this.Error });
 			}
 
 			//int error = this.channel.Error;
@@ -153,14 +153,13 @@ namespace ETModel
 			catch (Exception e)
 			{
 				// 出现任何消息解析异常都要断开Session，防止客户端伪造消息
-				Log.Error($"opcode: {opcode} {this.Network.Count} {e} ");
+				Log.Error($"opcode: {opcode} {this.Network.Count} {e}, ip: {this.RemoteAddress}");
 				this.Error = ErrorCode.ERR_PacketParserError;
 				this.Network.Remove(this.Id);
 				return;
 			}
-				
-			IResponse response = message as IResponse;
-			if (response == null)
+
+			if (!(message is IResponse response))
 			{
 				this.Network.MessageDispatcher.Dispatch(this, opcode, message);
 				return;
@@ -175,6 +174,48 @@ namespace ETModel
 
 			action(response);
 		}
+		
+		public ETTask<IResponse> CallWithoutException(IRequest request)
+		{
+			int rpcId = ++RpcId;
+			var tcs = new ETTaskCompletionSource<IResponse>();
+
+			this.requestCallback[rpcId] = (response) =>
+			{
+				if (response is ErrorResponse errorResponse)
+				{
+					tcs.SetException(new Exception($"session close, errorcode: {errorResponse.Error} {errorResponse.Message}"));
+					return;
+				}
+				tcs.SetResult(response);
+			};
+
+			request.RpcId = rpcId;
+			this.Send(request);
+			return tcs.Task;
+		}
+		
+		public ETTask<IResponse> CallWithoutException(IRequest request, CancellationToken cancellationToken)
+		{
+			int rpcId = ++RpcId;
+			var tcs = new ETTaskCompletionSource<IResponse>();
+
+			this.requestCallback[rpcId] = (response) =>
+			{
+				if (response is ErrorResponse errorResponse)
+				{
+					tcs.SetException(new Exception($"session close, errorcode: {errorResponse.Error} {errorResponse.Message}"));
+					return;
+				}
+				tcs.SetResult(response);
+			};
+
+			cancellationToken.Register(() => this.requestCallback.Remove(rpcId));
+
+			request.RpcId = rpcId;
+			this.Send(request);
+			return tcs.Task;
+		}
 
 		public ETTask<IResponse> Call(IRequest request)
 		{
@@ -183,19 +224,13 @@ namespace ETModel
 
 			this.requestCallback[rpcId] = (response) =>
 			{
-				try
+				if (ErrorCode.IsRpcNeedThrowException(response.Error))
 				{
-					if (ErrorCode.IsRpcNeedThrowException(response.Error))
-					{
-						throw new RpcException(response.Error, response.Message);
-					}
+					tcs.SetException(new Exception($"Rpc Error: {request.GetType().FullName} {response.Error}"));
+					return;
+				}
 
-					tcs.SetResult(response);
-				}
-				catch (Exception e)
-				{
-					tcs.SetException(new Exception($"Rpc Error: {request.GetType().FullName}", e));
-				}
+				tcs.SetResult(response);
 			};
 
 			request.RpcId = rpcId;
@@ -210,19 +245,12 @@ namespace ETModel
 
 			this.requestCallback[rpcId] = (response) =>
 			{
-				try
+				if (ErrorCode.IsRpcNeedThrowException(response.Error))
 				{
-					if (ErrorCode.IsRpcNeedThrowException(response.Error))
-					{
-						throw new RpcException(response.Error, response.Message);
-					}
+					tcs.SetException(new Exception($"Rpc Error: {request.GetType().FullName} {response.Error}"));
+				}
 
-					tcs.SetResult(response);
-				}
-				catch (Exception e)
-				{
-					tcs.SetException(new Exception($"Rpc Error: {request.GetType().FullName}", e));
-				}
+				tcs.SetResult(response);
 			};
 
 			cancellationToken.Register(() => this.requestCallback.Remove(rpcId));
